@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:user_app/authentication/login_screen.dart';
 import 'package:user_app/authentication/signup_screen.dart';
 
+import '../global/global.dart';
 import '../mainScreens/main_screen.dart';
 
 class MySplashScreen extends StatefulWidget
@@ -19,8 +20,15 @@ class _MySplashScreenState extends State<MySplashScreen>
   startTimer()
   {
     Timer(const Duration(seconds: 3), () async{
-      //send user to main screen
-      Navigator.push(context, MaterialPageRoute(builder: (c)=>LoginScreen()));
+
+      if(await fAuth.currentUser != null)
+        {
+          Navigator.push(context, MaterialPageRoute(builder: (c)=>MainScreen()));
+        }
+      else
+        {
+          Navigator.push(context, MaterialPageRoute(builder: (c)=>LoginScreen()));
+        }
     });
   }
 

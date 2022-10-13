@@ -1,16 +1,61 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:user_app/splashScreen/splash_screen.dart';
 
-class VehicalInfoScreen extends StatefulWidget
+import '../global/global.dart';
+
+class VehicleInfoScreen extends StatefulWidget
 {
 
   @override
-  State<VehicalInfoScreen> createState() => _VehicalInfoScreenState();
+  State<VehicleInfoScreen> createState() => _VehicleInfoScreenState();
 }
 
-class _VehicalInfoScreenState extends State<VehicalInfoScreen> {
+class _VehicleInfoScreenState extends State<VehicleInfoScreen> {
 
   TextEditingController vehicleNumberTextEditingController = TextEditingController();
   TextEditingController vehicleIdTextEditingController = TextEditingController();
+
+  String vehicleIdText = "";
+  
+
+  saveVehicleInfo()
+  {
+    if(accessRequest(vehicleIdText.toString().trim()))
+      {
+        Map userVehicleInfoMap =
+        {
+          "vehicle_number": vehicleNumberTextEditingController.toString().trim(),
+          //"vehicle_id": vehicleIdTextEditingController.toString().trim(),
+        };
+
+        DatabaseReference usersRef = FirebaseDatabase.instance.ref().child("users");
+        usersRef.child(currentFirebaseUser!.uid).child("vehicle_detail").child(vehicleIdText.toString().trim()).set(userVehicleInfoMap);
+
+        Fluttertoast.showToast(msg: "Vehicle added.");
+        Navigator.push(context, MaterialPageRoute(builder: (c) => const MySplashScreen()));
+
+
+      }
+    else
+    {
+      Fluttertoast.showToast(msg: "Request rejected");
+      Navigator.push(context, MaterialPageRoute(builder: (c) => VehicleInfoScreen()));
+    }
+
+  }
+
+  
+  
+  accessRequest(String firebaseVehicleId)
+  {
+
+    //todo
+
+    return true;
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +134,11 @@ class _VehicalInfoScreenState extends State<VehicalInfoScreen> {
                     fontSize: 15,
                   ),
                 ),
+                onChanged: (text) {
+                  setState(() {
+                    vehicleIdText = text;
+                  });
+                },
               ),
 
               const SizedBox(height: 24,),
@@ -96,7 +146,11 @@ class _VehicalInfoScreenState extends State<VehicalInfoScreen> {
               ElevatedButton(
                 onPressed: ()
                 {
-                  Navigator.push(context, MaterialPageRoute(builder: (c) => VehicalInfoScreen()));
+                  if(vehicleNumberTextEditingController.text.isNotEmpty
+                  && vehicleIdText.toString().isNotEmpty)
+                    {
+                      saveVehicleInfo();
+                    }
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.lightGreenAccent
